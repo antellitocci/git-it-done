@@ -22,10 +22,11 @@ var formSubmitHandler = function(event)
 var getUserRepos = function(user) 
 {
     //format github api url
-    var apiUrl = "https://api.github.com/users/" + user + "/repos/";
+    var apiUrl = "https://api.github.com/users/" + user + "/repos";
 
     //make a request to the url
     fetch(apiUrl).then(function(response){
+        console.log(response);
         if(response.ok){
             response.json().then(function(data){
                 console.log(data, user);
@@ -34,30 +35,27 @@ var getUserRepos = function(user)
         }
         else
         {
-            alert("Error: Github User Not Found");
+            alert("Error: Github user not found");
         }
     })
     .catch(function(error){
         alert("Unable to connect to Github.");
-    })
+    });
 };
 
 var displayRepos = function(repos, searchTerm)
 {
-    console.log(repos);
-    console.log(searchTerm);
-
-
-
-    //clear old content
-    repoContainerElem.textContent="";
-    repoSearchTerm.textContent = searchTerm;
     //check if api returned any repos
     if(repos.length === 0)
     {
         repoContainerElem.textContent = "No repositories found.";
         return;
     }
+
+    //clear old content
+    repoContainerElem.textContent="";
+    repoSearchTerm.textContent = searchTerm;
+
     //loop over repos
     for (var i =0; i < repos.length; i ++)
     {
@@ -65,8 +63,9 @@ var displayRepos = function(repos, searchTerm)
         var repoName = repos[i].owner.login + "/" + repos[i].name;
 
         //create a container for each repo
-        var repoElem = document.createElement("div");
+        var repoElem = document.createElement("a");
         repoElem.classList = "list-item flex-row justify-space-between align-center";
+        repoElem.setAttribute("href", "./single-repo.html?repo=" + repoName);
 
         //create a span element to hold repository name
         var titleElem = document.createElement("span");

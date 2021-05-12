@@ -1,5 +1,30 @@
 //reference to issues container
 var issueContainerElem = document.querySelector("#issues-container");
+//reference over 30 warning container
+var limitWarningElem = document.querySelector("#limit-warning");
+//get repo name element
+var repoNameElem = document.querySelector("#repo-name");
+
+function getRepoName()
+{
+    //grab repo name from url query string
+    var queryString = document.location.search;
+    var repoName = queryString.split("=")[1];
+
+    if(repoName)
+    {
+        //display repo name on the page
+        getRepoIssue(repoName);
+        repoNameElem.textContent = repoName;
+    }
+    else
+    {
+        //if no repo given, redirect to homepage
+        document.location.replace("./index.html");
+    }
+
+
+};
 
 function getRepoIssue(repo)
 {
@@ -10,13 +35,35 @@ function getRepoIssue(repo)
             response.json().then(function(data){
                 //pass response data to DOM function
                 displayIssues(data);
+
+                //check if api has paginated issues
+                if(response.headers.get("Link"))
+                {
+                    displayWarning(repo);
+                }
             });
         }
         else
         {
-            alert("There was a problem with your request.");
+            //if not successful, redirect to homepage
+            document.location.replace("./index.html");
         }
     });
+};
+
+function displayWarning(repo)
+{
+    //add text to the warning container
+    limitWarningElem.textContent = "To see more than 30 issues, visit ";
+
+    //create link content
+    var linkElem = document.createElement("a");
+    linkElem.textContent = "See More Issues on Github.com";
+    linkElem.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkElem.setAttribute("target", "_blank");
+
+    //append to warning container
+    limitWarningElem.appendChild(linkElem);
 };
 
 function displayIssues(issues)
@@ -63,6 +110,4 @@ function displayIssues(issues)
     }
 };
 
-
-
-getRepoIssue("antellitocci/run-buddy");
+getRepoName();
